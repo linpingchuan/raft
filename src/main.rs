@@ -1,14 +1,18 @@
-extern crate slog_term;
 #[macro_use]
 extern crate slog;
+extern crate slog_term;
 extern crate slog_async;
+
+use slog::*;
+
 fn main() {
-    // env_logger::init().unwrap();
+    let plain = slog_term::PlainSyncDecorator::new(std::io::stdout());
+    let logger = Logger::root(
+        slog_term::FullFormat::new(plain)
+        .build().fuse(), o!()
+    );
 
-    let dorcorator=slog_term::TermDecorator::new().build();
-    let drain=slog_term::FullFormat::new(dorcorator).build().fuse();
-    let drain=slog_async::Async::new(drain).build().fuse();
-    let log=slog::Logger::root(drain, o!("version"=>"0.5"));
+    info!(logger, "Logging ready!");
 
-    debug!(log,"starting";"what"=>"the_thing");
+    info!(logger,"Logging exit!");
 }
