@@ -14,6 +14,7 @@ slog-stdlog = "4"
 slog-envlogger = "2.1.0"
 slog-term = "2.4.0"
 quick-error = "1.2.2"
+raft-proto = "0.6.0-alpha"
 # Stick with 0.6 (rather than 0.7) for now, since most of the ecosystem has not
 # upgraded yet and this saves duplicate deps.
 rand = "0.6.5"
