@@ -2,16 +2,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Windows) Launch",
-            "type": "cppvsdbg",
+            "name": "Launch",
+            "type": "lldb",
             "request": "launch",
-            "program": "${workspaceRoot}/target/debug/hello.exe",
+            "program": "${workspaceFolder}/target/debug/hello.exe",
             "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceRoot}",
-            "environment": [],
-            "externalConsole": true,
-            "preLaunchTask": "build", //预先执行task.json
+            "preLaunchTask": "build"
         }
     ]
 }
