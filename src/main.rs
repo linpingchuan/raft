@@ -4,6 +4,8 @@ extern crate slog_async;
 
 use slog::*;
 
+
+
 fn main() {
     let plain = slog_term::PlainSyncDecorator::new(std::io::stdout());
     let logger = Logger::root(
