@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/target/debug/hello.exe",
             "args": [],
-            "preLaunchTask": "build"
+            "preLaunchTask": "Rust: cargo build"
         }
     ]
 }

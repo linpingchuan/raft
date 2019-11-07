@@ -112,6 +112,16 @@ impl Unstable{
         }
     }
 
+    /// 从日志条目数据中返回从low到high的切片
+    pub fn slice(&self,lo:u64,hi:u64)-> &[Entry]{
+        self.must_check_outofbounds(lo, hi);
+        let l=lo as usize;
+        let h=hi as usize;
+        let off=self.offset as usize;
+        &self.entries[l-off..h-off]
+    }
+
+    /// 判断lo跟hi不越界
     pub fn must_check_outofbounds(&self,lo:u64,hi:u64){
         if lo>hi{
             fatal!(self.logger,"invalid unstable.slice {} > {}",lo,hi)
@@ -127,6 +137,58 @@ impl Unstable{
                 self.offset,
                 upper
             )
+        }
+    }
+}
+
+#[cfg(test)]
+mod test{
+    use crate::protos::eraftpb::*;
+    use crate::log_unstable::*;
+
+    fn new_entry(index: u64,term:u64)->Entry{
+        let mut e=Entry::default();
+        e.term=term;
+        e.index=index;
+        e
+    }
+
+    fn new_snapshot(index:u64,term:u64)->Snapshot{
+        let mut snapshot=Snapshot::default();
+        let mut metadata=SnapshotMetadata::default();
+
+        metadata.index=index;
+        metadata.term=term;
+
+        snapshot.set_metadata(metadata);
+
+        snapshot
+    }
+
+    #[test]
+    fn test_maybe_first_index() {
+        // entry,offset,snapshot,wok,windex
+        let tests=vec![
+            // 没有快照
+            (Some(new_entry(5, 1)),5,None,false,0),
+            (None,0,None,false,0),
+            // 有快照
+            (Some(new_entry(5, 1)),5,Some(new_snapshot(5, 1)),true,5),
+            (None,5,Some(new_snapshot(4, 1)),true,5),
+        ];
+
+        for(entries,offset,snapshot,wok,windex) in tests{
+            let u=Unstable{
+                entries:entries.map_or(vec![],|entry|vec![entry]),
+                offset,
+                snapshot,
+                logger:crate::default_logger(),
+            };
+            let index=u.maybe_first_index();
+            match index{
+                None=>assert!(!wok),
+                Some(index)=>assert_eq!(index,windex)
+            }
         }
     }
 }
