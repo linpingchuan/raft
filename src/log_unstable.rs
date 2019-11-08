@@ -143,26 +143,61 @@ impl Unstable{
 
 #[cfg(test)]
 mod test{
-    use crate::protos::eraftpb::*;
     use crate::log_unstable::*;
 
-    fn new_entry(index: u64,term:u64)->Entry{
+    fn new_entry(index:u64,term:u64)->Entry{
         let mut e=Entry::default();
-        e.term=term;
         e.index=index;
+        e.term=term;
         e
     }
-
     fn new_snapshot(index:u64,term:u64)->Snapshot{
         let mut snapshot=Snapshot::default();
         let mut metadata=SnapshotMetadata::default();
 
         metadata.index=index;
         metadata.term=term;
-
+        
         snapshot.set_metadata(metadata);
 
         snapshot
+    }
+    #[test]
+    fn test_maybe_first1_index() {
+        // entry,offset,snapshot,wok,windex
+        let tests=vec![
+            (Some(new_entry(5, 1)),5,None,false,0),
+            (None,0,None,false,0),
+            (Some(new_entry(5, 1)),5,Some(new_snapshot(5, 1)),true,6),
+            (None,5,Some(new_snapshot(3, 1)),true,5),
+        ];
+
+        for(entries,offset,snapshot,wok,windex) in tests{
+            let u=Unstable{
+                snapshot:snapshot,
+                entries:entries.map_or(vec![],|entry| vec![entry]),
+                offset:offset,
+                logger:crate::default_logger(),
+            };
+            match u.snapshot.as_ref(){
+                Some(snapshot)=>info!(u.logger,"snapshot.metadata: {}",snapshot.get_metadata().index),
+                _ => error!(u.logger,"snapshot is None")
+            }
+
+            let index=u.maybe_first_index();
+            match index{
+                None=>assert!(!wok),
+                Some(p_index)=>{
+                    match u.snapshot.as_ref(){
+                        None=> error!(u.logger,"snapshot is None"),
+                        Some(snapshot)=>
+                            assert_eq!(p_index,windex,"w.offset: {}, u.snapshot.metadata.index: {}",
+                windex,snapshot.get_metadata().index+1)
+                        
+                    }
+                }
+            }
+        }
     }
 
     #[test]
@@ -179,7 +214,7 @@ mod test{
 
         for(entries,offset,snapshot,wok,windex) in tests{
             let u=Unstable{
-                entries:entries.map_or(vec![],|entry|vec![entry]),
+                entries:entries.map_or(vec![],|entry| vec![entry]),
                 offset,
                 snapshot,
                 logger:crate::default_logger(),
@@ -187,7 +222,7 @@ mod test{
             let index=u.maybe_first_index();
             match index{
                 None=>assert!(!wok),
-                Some(index)=>assert_eq!(index,windex)
+                Some(index)=>assert_eq!(index,windex,"offset: {}",u.offset)
             }
         }
     }
