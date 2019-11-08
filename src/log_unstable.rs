@@ -200,4 +200,8 @@ mod test{
             }
         }
     }
+
+    #[test]
+    fn test_maybe_last_index() {
+    }
 }
