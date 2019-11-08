@@ -169,7 +169,7 @@ mod test{
             (Some(new_entry(5, 1)),5,None,false,0),
             (None,0,None,false,0),
             (Some(new_entry(5, 1)),5,Some(new_snapshot(5, 1)),true,6),
-            (None,5,Some(new_snapshot(3, 1)),true,5),
+            (None,5,Some(new_snapshot(4, 1)),true,5),
         ];
 
         for(entries,offset,snapshot,wok,windex) in tests{
@@ -179,6 +179,7 @@ mod test{
                 offset:offset,
                 logger:crate::default_logger(),
             };
+            info!(u.logger,"thread-name: {}",std::thread::current().name().unwrap());
             match u.snapshot.as_ref(){
                 Some(snapshot)=>info!(u.logger,"snapshot.metadata: {}",snapshot.get_metadata().index),
                 _ => error!(u.logger,"snapshot is None")
