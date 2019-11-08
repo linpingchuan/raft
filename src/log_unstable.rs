@@ -163,7 +163,7 @@ mod test{
         snapshot
     }
     #[test]
-    fn test_maybe_first1_index() {
+    fn test_maybe_first_index() {
         // entry,offset,snapshot,wok,windex
         let tests=vec![
             (Some(new_entry(5, 1)),5,None,false,0),
@@ -196,33 +196,6 @@ mod test{
                         
                     }
                 }
-            }
-        }
-    }
-
-    #[test]
-    fn test_maybe_first_index() {
-        // entry,offset,snapshot,wok,windex
-        let tests=vec![
-            // 没有快照
-            (Some(new_entry(5, 1)),5,None,false,0),
-            (None,0,None,false,0),
-            // 有快照
-            (Some(new_entry(5, 1)),5,Some(new_snapshot(5, 1)),true,5),
-            (None,5,Some(new_snapshot(4, 1)),true,5),
-        ];
-
-        for(entries,offset,snapshot,wok,windex) in tests{
-            let u=Unstable{
-                entries:entries.map_or(vec![],|entry| vec![entry]),
-                offset,
-                snapshot,
-                logger:crate::default_logger(),
-            };
-            let index=u.maybe_first_index();
-            match index{
-                None=>assert!(!wok),
-                Some(index)=>assert_eq!(index,windex,"offset: {}",u.offset)
             }
         }
     }
