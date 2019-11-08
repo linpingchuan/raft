@@ -203,5 +203,11 @@ mod test{
 
     #[test]
     fn test_maybe_last_index() {
+        // entry,offset,snapshot,wok,windex
+        let tests=vec![
+            (Some(new_entry(5, 1)),5,None,true,5),
+            (Some(new_entry(5, 1)),5,Some(new_snapshot(4, 1)),true,5),
+        ];
+
     }
 }
