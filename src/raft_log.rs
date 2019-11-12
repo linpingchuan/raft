@@ -1,6 +1,8 @@
 use crate::storage::Storage;
 use crate::log_unstable::Unstable;
 
+use slog::Logger;
+
 /// Raft 日志实现
 pub struct RaftLog<T:Storage>{
     /// 保存最新快照中的所有 stable 日志条目
@@ -27,3 +29,16 @@ where
             )
         }
     }
+
+impl<T:Storage> RaftLog<T>{
+    pub fn new(store:T,logger:Logger)->RaftLog<T>{
+        let first_index=store.first_index().unwrap();
+        let last_index=store.last_index().unwrap();
+        RaftLog{
+            store,
+            committed:first_index-1,
+            applied:first_index-1,
+            unstable:Unstable::new(last_index+1,logger),
+        }
+    }
+}
