@@ -16,7 +16,6 @@ use protobuf::ProtobufError;
 use std::error;
 use std::{cmp, io, result};
 
-
 quick_error! {
     /// The base error type for raft
     #[derive(Debug)]

@@ -10,7 +10,6 @@ extern crate quick_error;
 mod util;
 
 macro_rules! fatal {
-    
     ($logger:expr, $msg:expr) => {{
         let owned_kv = ($logger).list();
         let s = crate::util::format_kv_list(&owned_kv);
@@ -66,6 +65,3 @@ pub fn default_logger() -> slog::Logger {
         .to_string();
     logger.new(o!("case" => case))
 }
-
-
-

@@ -15,20 +15,20 @@ pub enum StateRole {
 }
 
 /// 默认状态角色为 跟随者
-impl Default for StateRole{
-    fn default()->StateRole{
+impl Default for StateRole {
+    fn default() -> StateRole {
         StateRole::Follower
     }
 }
 
 /// 此结构体对于日志跟调试非常有用
 /// 这个结构体为原子性的并且不用持久化为WAL
-#[derive(Default,PartialEq,Debug)]
-pub struct SoftState{
+#[derive(Default, PartialEq, Debug)]
+pub struct SoftState {
     /// 默认的领导者
-    pub leader_id:u64,
+    pub leader_id: u64,
     /// 节点的角色
-    pub raft_state:StateRole,
+    pub raft_state: StateRole,
 }
 
 /// 此结构体用于表示Raft 一致性。
@@ -54,7 +54,6 @@ pub struct SoftState{
 // }
 
 /// 表示非法ID
-pub const INVALID_ID:u64=0;
+pub const INVALID_ID: u64 = 0;
 /// 表示日志中非法索引
-pub const INVALID_INDEX:u64=0;
-
+pub const INVALID_INDEX: u64 = 0;
