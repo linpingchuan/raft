@@ -215,6 +215,57 @@ mod test {
         let tests = vec![
             (Some(new_entry(5, 1)), 5, None, true, 5),
             (Some(new_entry(5, 1)), 5, Some(new_snapshot(4, 1)), true, 5),
+            (None, 5, Some(new_snapshot(4, 1)), true, 4),
+            (None, 0, None, false, 0),
         ];
+        for (entries, offset, snapshot, wok, windex) in tests {
+            let u = Unstable {
+                entries: entries.map_or(vec![], |entry| vec![entry]),
+                offset,
+                snapshot,
+                logger: crate::default_logger(),
+            };
+            let index = u.maybe_last_index();
+            match index {
+                None => assert!(!wok),
+                Some(index) => assert_eq!(index, windex),
+            }
+        }
+    }
+
+    #[test]
+    fn test_maybe_term() {
+        let tests=vec![
+            (Some(new_entry(5, 1)),5,None,5,true,1),
+            (Some(new_entry(5, 1)),5,None,6,false,0),
+            (Some(new_entry(5, 1)),5,None,4,false,0),
+            (Some(new_entry(5, 1)),5,Some(new_snapshot(4, 1)),5,true,1),
+            (Some(new_entry(5, 1)),5,Some(new_snapshot(4, 1)),6,false,0),
+            (Some(new_entry(5, 1)),5,Some(new_snapshot(4, 1)),3,false,0),
+            (None,5,Some(new_snapshot(4, 1)),5,false,0),
+            (None,5,Some(new_snapshot(4, 1)),4,true,1),
+            (None,0,None,5,false,0)
+
+        ];
+        for(entries,offset,snapshot,index,wok,wterm) in tests{
+            let u=Unstable{
+                entries:entries.map_or(vec![],|entry| vec![entry]),
+                offset,
+                snapshot,
+                logger:crate::default_logger(),
+            };
+            let term=u.maybe_term(index);
+            match term{
+                None => assert!(!wok),
+                Some(term)=>assert_eq!(term,wterm),
+            }
+        }
+    }
+
+    #[test]
+    fn test_default_loggger() {
+        let logger=crate::default_loggger();
+        assert_eq!(1,1);
+        error!(logger,"开始记录数据");
     }
 }
