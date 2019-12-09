@@ -57,3 +57,8 @@ pub struct SoftState {
 pub const INVALID_ID: u64 = 0;
 /// 表示日志中非法索引
 pub const INVALID_INDEX: u64 = 0;
+
+#[derive(Getters)]
+pub struct Raft<T:Storage>{
+
+}
