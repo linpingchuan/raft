@@ -783,6 +783,15 @@ func MakeCluster(n int, t *testing.T, conf *Config) *cluster {
 	})
 }
 
+// NOTE: This is exposed for middleware testing purpose and is not a stable API
+func MakeClusterChuan(n int, t *testing.T, conf *Config) *cluster {
+	return makeCluster(t, &MakeClusterOpts{
+		Peers:     n,
+		Bootstrap: true,
+		Conf:      conf,
+	})
+}
+
 // NOTE: This is exposed for middleware testing purposes and is not a stable API
 func MakeClusterNoBootstrap(n int, t *testing.T, conf *Config) *cluster {
 	return makeCluster(t, &MakeClusterOpts{

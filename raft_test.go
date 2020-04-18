@@ -15,7 +15,7 @@ import (
 )
 
 func TestRaft_StartStop(t *testing.T) {
-	c := MakeCluster(1, t, nil)
+	c := MakeClusterChuan(1, t, nil)
 	c.Close()
 }
 
