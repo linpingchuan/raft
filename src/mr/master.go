@@ -1,15 +1,32 @@
 package mr
 
-import "log"
-import "net"
-import "os"
-import "net/rpc"
-import "net/http"
+import (
+	"log"
+	"net"
+	"net/http"
+	"net/rpc"
+	"os"
+	"sync"
+)
 
 
 type Master struct {
 	// Your definitions here.
+	syn.Mutex
 
+	address string
+	doneChannel chan bool
+
+	newCond *sync.Cond
+	workers []string
+
+	jobName string
+	files []string
+	nReduce int
+
+	shutdown chan struct{}
+	l net.Listener
+	stats []int
 }
 
 // Your code here -- RPC handlers for the worker to call.
