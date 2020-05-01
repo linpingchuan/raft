@@ -5,6 +5,10 @@ https://www.youtube.com/channel/UC_7WrbZTCODu1o_kfUMq88g
 b 站视频
 
 https://www.bilibili.com/video/av97401926/
+
+B 站 比较完整的课程视频
+https://www.bilibili.com/video/BV1qk4y197bB
+
 map-reduce
 1. https://blog.csdn.net/u014680339/article/details/105246656 map-reduce的博客与流程图
 2. https://pdos.csail.mit.edu/6.824/schedule.html map-reduce的流程表
