@@ -28,7 +28,7 @@ type TaskArgs struct{
 	// 任务类型
 	TaskType string
 	// 任务完成结果
-	TaskResult 
+	TaskResult string
 }
 
 type TaskReply struct{
