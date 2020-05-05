@@ -12,6 +12,7 @@ import (
 
 type Master struct {
 	// Your definitions here.
+	sync.Mutex
 }
 
 // Your code here -- RPC handlers for the worker to call.
@@ -35,6 +36,7 @@ func (m *Master) server() {
 	rpc.HandleHTTP()
 	//l, e := net.Listen("tcp", ":1234")
 	sockname := masterSock()
+	log.Println("sock name: ",sockname)
 	os.Remove(sockname)
 	l, e := net.Listen("unix", sockname)
 	if e != nil {
