@@ -25,6 +25,10 @@ type ExampleReply struct {
 // Add your RPC definitions here.
 type TaskArgs struct{
 	Workername string
+	// 任务类型
+	TaskType string
+	// 任务完成结果
+	TaskResult 
 }
 
 type TaskReply struct{

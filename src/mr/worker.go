@@ -18,6 +18,7 @@ func (a ByKey) Len() int           { return len(a) }
 func (a ByKey) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByKey) Less(i, j int) bool { return a[i].Key < a[j].Key }
 
+
 //
 // Map functions return a slice of KeyValue.
 //
@@ -46,9 +47,9 @@ func Worker(mapf func(string, string) []KeyValue,
 
 	// 实现第一步，尝试从master获取任务
 	filename := *CallMaster()
-	log.Println("worker-filename: ",filename)
+	log.Println("worker-filename: ", filename)
 	intermediate := *mapWork(filename, mapf)
-	reduceWork(intermediate, reducef)
+	reduceWork(filename,intermediate, reducef)
 	// uncomment to send the Example RPC to the master.
 	// RPC 调用示例
 	// CallExample()
@@ -72,7 +73,7 @@ func mapWork(filename string, mapf func(string, string) []KeyValue) *[]KeyValue 
 	return &intermediate
 }
 
-func reduceWork(intermediate []KeyValue, reducef func(string, []string) string) {
+func reduceWork(filename string,intermediate []KeyValue, reducef func(string, []string) string) {
 	//
 	// a big difference from real MapReduce is that all the
 	// intermediate data is in one place, intermediate[],
@@ -81,7 +82,7 @@ func reduceWork(intermediate []KeyValue, reducef func(string, []string) string) 
 
 	sort.Sort(ByKey(intermediate))
 
-	oname := "mr-out-0"
+	oname := "mr-"+string(ihash(filename))
 	ofile, _ := os.Create(oname)
 
 	//
