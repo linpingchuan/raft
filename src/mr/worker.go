@@ -1,9 +1,22 @@
 package mr
 
-import "fmt"
-import "log"
-import "net/rpc"
-import "hash/fnv"
+import (
+	"fmt"
+	"hash/fnv"
+	"io/ioutil"
+	"log"
+	"net/rpc"
+	"os"
+	"sort"
+)
+
+// for sorting by key.
+type ByKey []KeyValue
+
+// for sorting by key.
+func (a ByKey) Len() int           { return len(a) }
+func (a ByKey) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByKey) Less(i, j int) bool { return a[i].Key < a[j].Key }
 
 //
 // Map functions return a slice of KeyValue.
@@ -31,8 +44,83 @@ func Worker(mapf func(string, string) []KeyValue,
 
 	// Your worker implementation here.
 
+	// 实现第一步，尝试从master获取任务
+	filename := *CallMaster()
+	log.Println("worker-filename: ",filename)
+	intermediate := *mapWork(filename, mapf)
+	reduceWork(intermediate, reducef)
 	// uncomment to send the Example RPC to the master.
-	CallExample()
+	// RPC 调用示例
+	// CallExample()
+
+}
+
+func mapWork(filename string, mapf func(string, string) []KeyValue) *[]KeyValue {
+	intermediate := []KeyValue{}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatalf("cannot open %v", filename)
+	}
+	content, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Fatalf("cannot read %v", filename)
+	}
+	file.Close()
+	kva := mapf(filename, string(content))
+	intermediate = append(intermediate, kva...)
+	return &intermediate
+}
+
+func reduceWork(intermediate []KeyValue, reducef func(string, []string) string) {
+	//
+	// a big difference from real MapReduce is that all the
+	// intermediate data is in one place, intermediate[],
+	// rather than being partitioned into NxM buckets.
+	//
+
+	sort.Sort(ByKey(intermediate))
+
+	oname := "mr-out-0"
+	ofile, _ := os.Create(oname)
+
+	//
+	// call Reduce on each distinct key in intermediate[],
+	// and print the result to mr-out-0.
+	//
+	i := 0
+	for i < len(intermediate) {
+		j := i + 1
+		for j < len(intermediate) && intermediate[j].Key == intermediate[i].Key {
+			j++
+		}
+		values := []string{}
+		for k := i; k < j; k++ {
+			values = append(values, intermediate[k].Value)
+		}
+		output := reducef(intermediate[i].Key, values)
+
+		// this is the correct format for each line of Reduce output.
+		fmt.Fprintf(ofile, "%v %v\n", intermediate[i].Key, output)
+
+		i = j
+	}
+
+	ofile.Close()
+}
+
+//
+// 创建RPC调用，调用master，获取对应的任务
+func CallMaster() *string {
+	args := TaskArgs{}
+
+	args.Workername = "worker1"
+
+	reply := TaskReply{}
+	if call("Master.SendTask", &args, &reply) {
+		return &reply.Filename
+	}
+	return nil
 
 }
 

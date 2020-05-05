@@ -13,6 +13,8 @@ import (
 type Master struct {
 	// Your definitions here.
 	sync.Mutex
+
+	files []string
 }
 
 // Your code here -- RPC handlers for the worker to call.
@@ -24,6 +26,14 @@ type Master struct {
 //
 func (m *Master) Example(args *ExampleArgs, reply *ExampleReply) error {
 	reply.Y = args.X + 1
+	return nil
+}
+
+// 
+// 分发master的文件名到worker中
+func (m *Master)SendTask(args *TaskArgs,reply *TaskReply)error{
+	reply.Filename=m.files[0]
+	log.Println("filename: ",reply.Filename)
 	return nil
 }
 
@@ -67,7 +77,8 @@ func MakeMaster(files []string, nReduce int) *Master {
 	m := Master{}
 
 	// Your code here.
-
+	// 将提交的任务files存在master结构中
+	m.files=files
 
 	m.server()
 	return &m
