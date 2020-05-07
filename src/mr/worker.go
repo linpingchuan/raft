@@ -115,8 +115,6 @@ func reduceWork(filename string, intermediate []KeyValue, reducef func(string, [
 func CallMaster() *string {
 	args := TaskArgs{}
 
-	args.Workername = "worker1"
-
 	reply := TaskReply{}
 	if call("Master.SendTask", &args, &reply) {
 		return &reply.Filename

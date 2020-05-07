@@ -90,7 +90,7 @@ rm -f mr-out*
 
 # 分布式版本程序
 # 启动主服务器
-cd /home/lin/projects/mit/2020-6.824/src/main && go run mrmaster.go pg*txt 
+cd /home/lin/projects/mit/raft/src/main && go run mrmaster.go pg*txt 
 # 启动从服务器
-cd /home/lin/projects/mit/2020-6.824/src/main && go build -buildmode=plugin ../mrapps/wc.go && go run mrworker.go wc.so
+cd /home/lin/projects/mit/raft/src/main && go build -buildmode=plugin ../mrapps/wc.go && go run mrworker.go wc.so
 ```

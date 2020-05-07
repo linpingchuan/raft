@@ -24,7 +24,6 @@ type ExampleReply struct {
 
 // Add your RPC definitions here.
 type TaskArgs struct{
-	Workername string
 	// 任务类型
 	TaskType string
 	// 任务完成结果
@@ -33,6 +32,7 @@ type TaskArgs struct{
 
 type TaskReply struct{
 	Filename string
+	TaskIndex int
 }
 
 // Cook up a unique-ish UNIX-domain socket name
