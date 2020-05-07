@@ -9,15 +9,16 @@ import (
 	"sync"
 )
 
-const(
-	MAP_STATUS=iota
+const (
+	MAP_STATUS = iota
 	REDUCE_STATUS
 )
+
 type Master struct {
 	// Your definitions here.
 	sync.Mutex
 
-	files []string
+	files      []string
 	taskStatus map[string]int
 }
 
@@ -33,19 +34,27 @@ func (m *Master) Example(args *ExampleArgs, reply *ExampleReply) error {
 	return nil
 }
 
+var waitGroup sync.WaitGroup
+
 //
 // 分发master的文件名到worker中
 func (m *Master) SendTask(args *TaskArgs, reply *TaskReply) error {
-	for idx,fileName := range m.files{
-		if _,ok:=m.taskStatus[fileName];ok{
-			continue;
+	for idx, fileName := range m.files {
+		waitGroup.Add(1)
+		if _, ok := m.taskStatus[fileName]; ok {
+			log.Println("task-status-filename: ", fileName)
+			waitGroup.Done()
+			continue
 		}
-		reply.Filename=fileName
-		reply.TaskIndex=idx
-		m.taskStatus[fileName]=MAP_STATUS
-		break;
+		log.Println("taskStatus: ",m.taskStatus)
+		reply.Filename = fileName
+		reply.TaskIndex = idx
+		m.taskStatus[fileName] = MAP_STATUS
+		waitGroup.Done()
+		break
 	}
-	log.Println("filename: ", reply.Filename,",index: ",reply.TaskIndex)
+	waitGroup.Wait()
+	log.Println("filename: ", reply.Filename, ",index: ", reply.TaskIndex)
 	return nil
 }
 
@@ -89,7 +98,7 @@ func MakeMaster(files []string, nReduce int) *Master {
 	// Your code here.
 	// 将提交的任务files存在master结构中
 	m.taskStatus = make(map[string]int)
-	m.files=files
+	m.files = files
 
 	m.server()
 	return &m

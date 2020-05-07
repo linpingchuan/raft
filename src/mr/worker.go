@@ -45,10 +45,14 @@ func Worker(mapf func(string, string) []KeyValue,
 	// Your worker implementation here.
 
 	// 实现第一步，尝试从master获取任务
-	filename := *CallMaster()
-	log.Println("worker-filename: ", filename)
-	intermediate := *mapWork(filename, mapf)
-	reduceWork(filename, intermediate, reducef)
+	for reply := CallMaster(); reply != nil; {
+		filename := reply.Filename
+		log.Println("worker-filename: ", filename)
+		intermediate := *mapWork(filename, mapf)
+		reduceWork(filename, intermediate, reducef)
+		reply = CallMaster()
+	}
+
 	// uncomment to send the Example RPC to the master.
 	// RPC 调用示例
 	// CallExample()
@@ -112,12 +116,12 @@ func reduceWork(filename string, intermediate []KeyValue, reducef func(string, [
 
 //
 // 创建RPC调用，调用master，获取对应的任务
-func CallMaster() *string {
+func CallMaster() *TaskReply {
 	args := TaskArgs{}
 
 	reply := TaskReply{}
 	if call("Master.SendTask", &args, &reply) {
-		return &reply.Filename
+		return &reply
 	}
 	return nil
 
