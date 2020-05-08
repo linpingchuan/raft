@@ -2,8 +2,8 @@
 
 > git 仓库地址: git://g.csail.mit.edu/6.824-golabs-2020
 
-## map-reduce 的流程文档
-> 对应的作业地址: https://pdos.csail.mit.edu/6.824/labs/lab-mr.html
+## [map-reduce 的流程文档](./doc/mr/README.md)
+> [mit pdos 作业地址](https://pdos.csail.mit.edu/6.824/labs/lab-mr.html)
 
 ### shell 构建脚本
 ```shell

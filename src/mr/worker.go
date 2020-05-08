@@ -45,11 +45,9 @@ func Worker(mapf func(string, string) []KeyValue,
 	// Your worker implementation here.
 
 	// 实现第一步，尝试从master获取任务
-	for reply := CallMaster(); reply != nil; {
-		filename := reply.Filename
-		log.Println("worker-filename: ", filename)
-		intermediate := *mapWork(filename, mapf)
-		reduceWork(filename, intermediate, reducef)
+	for reply := CallMaster(); reply != nil && len(reply.Filename) != 0; {
+		intermediate := *mapWork(*reply, mapf)
+		reduceWork(*reply, intermediate, reducef)
 		reply = CallMaster()
 	}
 
@@ -59,9 +57,9 @@ func Worker(mapf func(string, string) []KeyValue,
 
 }
 
-func mapWork(filename string, mapf func(string, string) []KeyValue) *[]KeyValue {
+func mapWork(reply TaskReply, mapf func(string, string) []KeyValue) *[]KeyValue {
 	intermediate := []KeyValue{}
-
+	filename := reply.Filename
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatalf("cannot open %v", filename)
@@ -72,20 +70,22 @@ func mapWork(filename string, mapf func(string, string) []KeyValue) *[]KeyValue 
 	}
 	file.Close()
 	kva := mapf(filename, string(content))
+	log.Panicln("kv: ",kva)
+	
 	intermediate = append(intermediate, kva...)
 	return &intermediate
 }
 
-func reduceWork(filename string, intermediate []KeyValue, reducef func(string, []string) string) {
+func reduceWork(reply TaskReply, intermediate []KeyValue, reducef func(string, []string) string) {
 	//
 	// a big difference from real MapReduce is that all the
 	// intermediate data is in one place, intermediate[],
 	// rather than being partitioned into NxM buckets.
 	//
-
+	taskIndex := reply.TaskIndex
 	sort.Sort(ByKey(intermediate))
 
-	oname := "mr-" + fmt.Sprintf("%d", ihash(filename))
+	oname := "mr-" + fmt.Sprintf("%d", taskIndex)
 	log.Println("oname: ", oname)
 	ofile, _ := os.Create(oname)
 

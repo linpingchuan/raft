@@ -20,6 +20,7 @@ type Master struct {
 
 	files      []string
 	taskStatus map[string]int
+	reduceNum  int
 }
 
 // Your code here -- RPC handlers for the worker to call.
@@ -46,9 +47,10 @@ func (m *Master) SendTask(args *TaskArgs, reply *TaskReply) error {
 			waitGroup.Done()
 			continue
 		}
-		log.Println("taskStatus: ",m.taskStatus)
+		log.Println("taskStatus: ", m.taskStatus)
 		reply.Filename = fileName
 		reply.TaskIndex = idx
+		reply.ReduceNum = m.reduceNum
 		m.taskStatus[fileName] = MAP_STATUS
 		waitGroup.Done()
 		break
@@ -99,6 +101,7 @@ func MakeMaster(files []string, nReduce int) *Master {
 	// 将提交的任务files存在master结构中
 	m.taskStatus = make(map[string]int)
 	m.files = files
+	m.reduceNum = nReduce
 
 	m.server()
 	return &m
