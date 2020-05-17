@@ -62,7 +62,7 @@ func (m *Master) SendTask(args *TaskArgs, reply *TaskReply) error {
 		break
 	}
 	waitGroup.Wait()
-	log.Println("filename: ", reply.Filename, ",index: ", reply.TaskIndex)
+	
 	return nil
 }
 

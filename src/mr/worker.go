@@ -56,7 +56,9 @@ func Worker(mapf func(string, string) []KeyValue,
 			args.LastFileName = reply.Filename
 			args.TaskIndex = reply.TaskIndex
 			reply = CallMaster(args)
-
+		}
+		if reply.TaskType == Reduce {
+			reduceWork(*reply, reducef)
 		}
 
 	}
@@ -99,14 +101,15 @@ func mapWork(reply TaskReply, mapf func(string, string) []KeyValue) {
 
 }
 
-func reduceWork(reply TaskReply, intermediate []KeyValue, reducef func(string, []string) string) {
+func reduceWork(reply TaskReply, reducef func(string, []string) string) {
 	//
 	// a big difference from real MapReduce is that all the
 	// intermediate data is in one place, intermediate[],
 	// rather than being partitioned into NxM buckets.
 	//
 	taskIndex := reply.TaskIndex
-	sort.Sort(ByKey(intermediate))
+	// var KeyValue intermediate=
+	// sort.Sort(ByKey(intermediate))
 
 	oname := "mr-" + fmt.Sprintf("%d", taskIndex)
 	log.Println("oname: ", oname)
