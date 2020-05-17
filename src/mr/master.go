@@ -51,6 +51,7 @@ func (m *Master) SendTask(args *TaskArgs, reply *TaskReply) error {
 		reply.Filename = fileName
 		reply.TaskIndex = idx
 		reply.ReduceNum = m.reduceNum
+		reply.TaskType=Map
 		m.taskStatus[fileName] = MAP_STATUS
 		waitGroup.Done()
 		break

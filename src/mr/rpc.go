@@ -22,16 +22,22 @@ type ExampleReply struct {
 	Y int
 }
 
+const (
+	Map = iota
+	Reduce
+)
+
 // Add your RPC definitions here.
-type TaskArgs struct{
+type TaskArgs struct {
 	// 任务类型
-	TaskType string
-	// 任务完成结果
-	TaskResult string
+	TaskType int
+	// 任务下标
+	TaskIndex int
 }
 
-type TaskReply struct{
-	Filename string
+type TaskReply struct {
+	Filename  string
+	TaskType  int
 	TaskIndex int
 	ReduceNum int
 }

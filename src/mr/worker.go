@@ -48,11 +48,17 @@ func Worker(mapf func(string, string) []KeyValue,
 	// 实现第一步，尝试从master获取任务
 	// map任务全部完成才能开始reduce任务
 	args := TaskArgs{}
+	args.TaskType = Map
 	for reply := CallMaster(args); reply != nil && len(reply.Filename) != 0; {
-		mapWork(*reply, mapf)
-		// reduceWork(*reply, intermediate, reducef)
-		args = TaskArgs{}
-		reply = CallMaster(args)
+		if reply.TaskType == Map {
+			mapWork(*reply, mapf)
+			// reduceWork(*reply, intermediate, reducef)
+			args = TaskArgs{}
+			reply = CallMaster(args)
+
+
+		}
+
 	}
 
 	// uncomment to send the Example RPC to the master.
@@ -84,7 +90,7 @@ func mapWork(reply TaskReply, mapf func(string, string) []KeyValue) {
 		buckets[intermediate] = append(bucket, kv)
 	}
 	for index, bucket := range buckets {
-		fileName := "./mr-tmp/mr-" + fmt.Sprintf("-%d", reply.TaskIndex) + fmt.Sprintf("-%d", index)
+		fileName := "./mr-tmp/mr" + fmt.Sprintf("-%d", reply.TaskIndex) + fmt.Sprintf("-%d", index)
 		os.Remove(fileName)
 		file, _ := os.Create(fileName)
 		enc := json.NewEncoder(file)
