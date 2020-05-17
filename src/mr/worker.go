@@ -1,6 +1,7 @@
 package mr
 
 import (
+	"encoding/json"
 	"fmt"
 	"hash/fnv"
 	"io/ioutil"
@@ -45,7 +46,9 @@ func Worker(mapf func(string, string) []KeyValue,
 	// Your worker implementation here.
 
 	// 实现第一步，尝试从master获取任务
-	for reply := CallMaster(); reply != nil && len(reply.Filename) != 0; {
+	// map任务全部完成才能开始reduce任务
+	args := TaskArgs{}
+	for reply := CallMaster(args); reply != nil && len(reply.Filename) != 0; {
 		mapWork(*reply, mapf)
 		// reduceWork(*reply, intermediate, reducef)
 		reply = CallMaster()
@@ -74,14 +77,15 @@ func mapWork(reply TaskReply, mapf func(string, string) []KeyValue) {
 	}
 	file.Close()
 	kva := mapf(filename, string(content))
-	log.Println("kv: ", buckets)
 	for _, kv := range kva {
 		intermediate := ihash(kv.Key) % bucketCount
 		bucket := buckets[intermediate]
 		buckets[intermediate] = append(bucket, kv)
 	}
-	for _,bucket:=range buckets{
-		ioutil.WriteFile()
+	for index,bucket:=range buckets{
+		file,_:=os.Create("./mr-tmp/mr-" + fmt.Sprintf("-%d", reply.TaskIndex) + fmt.Sprintf("-%d", index))
+		enc:=json.NewEncoder(file)
+		enc.Encode(&bucket)
 	}
 
 }
@@ -126,9 +130,7 @@ func reduceWork(reply TaskReply, intermediate []KeyValue, reducef func(string, [
 
 //
 // 创建RPC调用，调用master，获取对应的任务
-func CallMaster() *TaskReply {
-	args := TaskArgs{}
-
+func CallMaster(args TaskArgs) *TaskReply {
 	reply := TaskReply{}
 	if call("Master.SendTask", &args, &reply) {
 		return &reply
