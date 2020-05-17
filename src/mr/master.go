@@ -40,10 +40,15 @@ var waitGroup sync.WaitGroup
 //
 // 分发master的文件名到worker中
 func (m *Master) SendTask(args *TaskArgs, reply *TaskReply) error {
+	if len(args.LastFileName) != 0 {
+		log.Println("filename: ", args.LastFileName, " already work in reduce status")
+		m.taskStatus[args.LastFileName] = REDUCE_STATUS
+	}
+
 	for idx, fileName := range m.files {
 		waitGroup.Add(1)
 		if _, ok := m.taskStatus[fileName]; ok {
-			log.Println("task-status-filename: ", fileName)
+			log.Println("task-status-filename: ", fileName, " already sent.")
 			waitGroup.Done()
 			continue
 		}
@@ -51,7 +56,7 @@ func (m *Master) SendTask(args *TaskArgs, reply *TaskReply) error {
 		reply.Filename = fileName
 		reply.TaskIndex = idx
 		reply.ReduceNum = m.reduceNum
-		reply.TaskType=Map
+		reply.TaskType = Map
 		m.taskStatus[fileName] = MAP_STATUS
 		waitGroup.Done()
 		break

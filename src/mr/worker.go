@@ -48,14 +48,14 @@ func Worker(mapf func(string, string) []KeyValue,
 	// 实现第一步，尝试从master获取任务
 	// map任务全部完成才能开始reduce任务
 	args := TaskArgs{}
-	args.TaskType = Map
 	for reply := CallMaster(args); reply != nil && len(reply.Filename) != 0; {
 		if reply.TaskType == Map {
 			mapWork(*reply, mapf)
 			// reduceWork(*reply, intermediate, reducef)
 			args = TaskArgs{}
+			args.LastFileName = reply.Filename
+			args.TaskIndex = reply.TaskIndex
 			reply = CallMaster(args)
-
 
 		}
 

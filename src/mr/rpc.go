@@ -29,10 +29,9 @@ const (
 
 // Add your RPC definitions here.
 type TaskArgs struct {
-	// 任务类型
-	TaskType int
 	// 任务下标
-	TaskIndex int
+	TaskIndex    int
+	LastFileName string
 }
 
 type TaskReply struct {
