@@ -51,7 +51,8 @@ func Worker(mapf func(string, string) []KeyValue,
 	for reply := CallMaster(args); reply != nil && len(reply.Filename) != 0; {
 		mapWork(*reply, mapf)
 		// reduceWork(*reply, intermediate, reducef)
-		reply = CallMaster()
+		args = TaskArgs{}
+		reply = CallMaster(args)
 	}
 
 	// uncomment to send the Example RPC to the master.
@@ -82,9 +83,11 @@ func mapWork(reply TaskReply, mapf func(string, string) []KeyValue) {
 		bucket := buckets[intermediate]
 		buckets[intermediate] = append(bucket, kv)
 	}
-	for index,bucket:=range buckets{
-		file,_:=os.Create("./mr-tmp/mr-" + fmt.Sprintf("-%d", reply.TaskIndex) + fmt.Sprintf("-%d", index))
-		enc:=json.NewEncoder(file)
+	for index, bucket := range buckets {
+		fileName := "./mr-tmp/mr-" + fmt.Sprintf("-%d", reply.TaskIndex) + fmt.Sprintf("-%d", index)
+		os.Remove(fileName)
+		file, _ := os.Create(fileName)
+		enc := json.NewEncoder(file)
 		enc.Encode(&bucket)
 	}
 
