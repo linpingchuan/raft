@@ -46,8 +46,8 @@ func Worker(mapf func(string, string) []KeyValue,
 
 	// 实现第一步，尝试从master获取任务
 	for reply := CallMaster(); reply != nil && len(reply.Filename) != 0; {
-		intermediate := *mapWork(*reply, mapf)
-		reduceWork(*reply, intermediate, reducef)
+		mapWork(*reply, mapf)
+		// reduceWork(*reply, intermediate, reducef)
 		reply = CallMaster()
 	}
 
@@ -57,9 +57,13 @@ func Worker(mapf func(string, string) []KeyValue,
 
 }
 
-func mapWork(reply TaskReply, mapf func(string, string) []KeyValue) *[]KeyValue {
-	intermediate := []KeyValue{}
+// 每个map任务都会有一个属于自己的编号x，接收一个<filename, content>内容，初始化一个大小为nReduce（reduce的任务数）的桶buckets，
+// 读取content内容，每遇到一个单词就生成一个<word, 1>（映射规则），然后根据word与nReduce（reduce的任务数）进行哈希，得到一个桶序号y，
+// 并将这个单词放入buckets[y]中，等处理完后，将buckets内容保存至文件中，每个bucket对应一个文件，文件名为mr-x-y
+func mapWork(reply TaskReply, mapf func(string, string) []KeyValue) {
 	filename := reply.Filename
+	bucketCount := reply.ReduceNum
+	buckets := make([][]KeyValue, bucketCount)
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatalf("cannot open %v", filename)
@@ -70,10 +74,16 @@ func mapWork(reply TaskReply, mapf func(string, string) []KeyValue) *[]KeyValue 
 	}
 	file.Close()
 	kva := mapf(filename, string(content))
-	log.Panicln("kv: ",kva)
-	
-	intermediate = append(intermediate, kva...)
-	return &intermediate
+	log.Println("kv: ", buckets)
+	for _, kv := range kva {
+		intermediate := ihash(kv.Key) % bucketCount
+		bucket := buckets[intermediate]
+		buckets[intermediate] = append(bucket, kv)
+	}
+	for _,bucket:=range buckets{
+		ioutil.WriteFile()
+	}
+
 }
 
 func reduceWork(reply TaskReply, intermediate []KeyValue, reducef func(string, []string) string) {

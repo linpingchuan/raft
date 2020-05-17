@@ -1,3 +1,8 @@
+# 项目结构
+
+## [map-reduce 的流程文档](./doc/mr/README.md)
+> [mit pdos 作业地址](https://pdos.csail.mit.edu/6.824/labs/lab-mr.html)
+
 youtube的6.824的视频课程
 
 https://www.youtube.com/channel/UC_7WrbZTCODu1o_kfUMq88g
